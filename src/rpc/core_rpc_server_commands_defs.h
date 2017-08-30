@@ -215,6 +215,7 @@ namespace cryptonote
       std::string as_json;
       bool in_pool;
       uint64_t block_height;
+      uint64_t block_timestamp;
       std::vector<uint64_t> output_indices;
 
       BEGIN_KV_SERIALIZE_MAP()
@@ -223,6 +224,7 @@ namespace cryptonote
         KV_SERIALIZE(as_json)
         KV_SERIALIZE(in_pool)
         KV_SERIALIZE(block_height)
+        KV_SERIALIZE(block_timestamp)
         KV_SERIALIZE(output_indices)
       END_KV_SERIALIZE_MAP()
     };
