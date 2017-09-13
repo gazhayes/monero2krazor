@@ -137,6 +137,7 @@
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 
 #define KICKOFF_TX                              0
+#define HASH_OF_HASHES_STEP                     256
 
 // New constants are intended to go here
 namespace config
