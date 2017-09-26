@@ -2271,26 +2271,6 @@ bool Blockchain::check_for_double_spend(const transaction& tx, key_images_contai
     }
   }
 
-  // from v7, sorted outs
-  if (m_hardfork->get_current_version() >= 7) {
-    const crypto::public_key *last_key = NULL;
-    for (size_t n = 0; n < tx.vout.size(); ++n)
-    {
-      const tx_out &o = tx.vout[n];
-      if (o.target.type() == typeid(txout_to_key))
-      {
-        const txout_to_key& out_to_key = boost::get<txout_to_key>(o.target);
-        if (last_key && memcmp(&out_to_key.key, last_key, sizeof(*last_key)) >= 0)
-        {
-          MERROR_VER("transaction has unsorted outputs");
-          tvc.m_invalid_output = true;
-          return false;
-        }
-        last_key = &out_to_key.key;
-      }
-    }
-  }
-
   return true;
 }
 //------------------------------------------------------------------
