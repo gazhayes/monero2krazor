@@ -1068,7 +1068,10 @@ namespace boost
           x.m_amount_out += x.m_change;
       }
       if (ver < 7)
+      {
+        x.m_subaddr_account = 0;
         return;
+      }
       a & x.m_subaddr_account;
       a & x.m_subaddr_indices;
     }
@@ -1109,7 +1112,10 @@ namespace boost
       }
       a & x.m_unlock_time;
       if (ver < 5)
+      {
+        x.m_subaddr_account = 0;
         return;
+      }
       a & x.m_subaddr_account;
       a & x.m_subaddr_indices;
     }
@@ -1125,7 +1131,10 @@ namespace boost
         return;
       a & x.m_timestamp;
       if (ver < 2)
+      {
+        x.m_subaddr_index = {};
         return;
+      }
       a & x.m_subaddr_index;
     }
     
@@ -1136,7 +1145,10 @@ namespace boost
       a & x.m_payment_id;
       a & x.m_description;
       if (ver < 17)
+      {
+        x.m_is_subaddress = false;
         return;
+      }
       a & x.m_is_subaddress;
     }
 
@@ -1166,7 +1178,10 @@ namespace boost
       a & x.use_rct;
       a & x.dests;
       if (ver < 1)
+      {
+        x.subaddr_account = 0;
         return;
+      }
       a & x.subaddr_account;
       a & x.subaddr_indices;
     }
