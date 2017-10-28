@@ -1221,12 +1221,14 @@ namespace cryptonote
     {
       std::string status;
       block_header_response block_header;
+      std::string miner_tx_hash;
       std::vector<std::string> tx_hashes;
       std::string blob;
       std::string json;
       
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
+        KV_SERIALIZE(miner_tx_hash)
         KV_SERIALIZE(tx_hashes)
         KV_SERIALIZE(status)
         KV_SERIALIZE(blob)
