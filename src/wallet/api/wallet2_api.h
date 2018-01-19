@@ -706,7 +706,7 @@ struct Wallet
      * \brief setUserNote - attach an arbitrary string note to a txid
      * \param txid - the transaction id to attach the note to
      * \param note - the note
-     * \return true if succesful, false otherwise
+     * \return true if successful, false otherwise
      */
     virtual bool setUserNote(const std::string &txid, const std::string &note) = 0;
     /*!
@@ -888,7 +888,7 @@ struct WalletManager
     }
 
     /*!
-     * \brief Closes wallet. In case operation succeded, wallet object deleted. in case operation failed, wallet object not deleted
+     * \brief Closes wallet. In case operation succeeded, wallet object deleted. in case operation failed, wallet object not deleted
      * \param wallet        previously opened / created wallet instance
      * \return              None
      */
