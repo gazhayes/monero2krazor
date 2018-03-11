@@ -703,6 +703,39 @@ namespace cryptonote
     blob.append(tools::get_varint_data(b.tx_hashes.size()+1));
     return blob;
   }
+
+
+
+  /* Used to generate a new genesis block if needed */
+   void make_new_kickoff_tx()
+   {
+   std::cout << ENDL<< ENDL<< "NEW GENESIS HERE!" << ENDL<< ENDL;
+   {
+      std::vector<cryptonote::account_public_address> targets;
+      std::string const genesis_block_reward_addresses = "RksX1kTu7cR7LonRfT8Hkkd8qPBr8T1YENjRvBKTw37fL25ezHzfkSeCJ4LWpSQMamMscHMSgx1SaXA436dTJMM61A9VqaGPD";
+      {
+        cryptonote::account_public_address address;
+        if (!cryptonote::get_account_address_from_str(address, false, genesis_block_reward_addresses)) {
+          std::cout << "Failed to parse address: " << genesis_block_reward_addresses << std::endl;
+          return;
+        }
+        targets.emplace_back(std::move(address));
+      }
+
+      if (targets.empty()) {
+        std::cout << "Error: genesis block reward addresses are not defined" << std::endl;
+      } else {
+        std::string tx_hex = cryptonote::get_genesis_tx_hex(targets);
+
+        std::cout << tx_hex;
+      }
+
+      return;
+    }
+   raise(SIGTERM);
+   }
+
+
   //---------------------------------------------------------------
   bool calculate_block_hash(const block& b, crypto::hash& res)
   {
@@ -757,6 +790,100 @@ namespace cryptonote
     get_block_hash(b, p);
     return p;
   }
+
+
+
+     /* Generate genesis block from existing genesis tx */
+      bool generate_genesis_tx(transaction& tx, const std::vector<account_public_address>& targets) {
+        assert(!targets.empty());
+
+       //Initialize tx vecs
+        tx.vin.clear();
+        tx.vout.clear();
+        tx.extra.clear();
+
+        //Get tx versions
+        tx.version = CURRENT_TRANSACTION_VERSION;
+        tx.unlock_time = CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
+
+       //generate tx public key and add to calc
+        keypair txkey = keypair::generate();
+        add_tx_pub_key_to_extra(tx, txkey.pub);
+
+        txin_gen in;
+        in.height = 0;
+        tx.vin.push_back(in);
+
+        uint64_t block_reward = 1;  //premine NEUGRUNDUNG_COUNT
+        uint64_t target_amount = block_reward / targets.size();
+        uint64_t first_target_amount = target_amount + block_reward % targets.size();
+
+        for (size_t i = 0; i < targets.size(); ++i) {
+          crypto::key_derivation derivation = AUTO_VAL_INIT(derivation);;
+          crypto::public_key out_eph_public_key = AUTO_VAL_INIT(out_eph_public_key);
+          bool r = crypto::generate_key_derivation(targets[i].m_view_public_key, txkey.sec, derivation);
+          CHECK_AND_ASSERT_MES(r, false, "while creating outs: failed to generate_key_derivation("
+            << targets[i].m_view_public_key << ", " << txkey.sec << ")");
+
+          r = crypto::derive_public_key(derivation, i, targets[i].m_spend_public_key, out_eph_public_key);
+          CHECK_AND_ASSERT_MES(r, false, "while creating outs: failed to derive_public_key(" << derivation <<
+             ", " << i << ", " << targets[i].m_spend_public_key << ")");
+
+          txout_to_key tk;
+          tk.key = out_eph_public_key;
+
+          tx_out out;
+          out.amount = (i == 0) ? first_target_amount : target_amount;
+          out.target = tk;
+          tx.vout.push_back(out);
+        }
+
+        return true;
+      }
+
+      std::string get_genesis_tx_hex(const std::vector<account_public_address>& targets) {
+        transaction tx;
+
+        if (!generate_genesis_tx(tx, targets)) {
+          //debug:
+          std::cout << "!generate_genesis_tx_hex" << std::endl;
+          return std::string();
+        }
+        blobdata txb = tx_to_blob(tx);
+        std::string hex_tx_represent = string_tools::buff_to_hex_nodelimer(txb);
+
+        return hex_tx_represent;
+      }
+
+      bool generate_genesis_block(block& bl)
+      {
+        //genesis block
+        bl = boost::value_initialized<block>();
+
+
+        std::string genesis_coinbase_tx_hex = KICKOFF_TX;
+
+        blobdata tx_bl;
+
+        string_tools::parse_hexstr_to_binbuff(genesis_coinbase_tx_hex, tx_bl);
+        bool r = parse_and_validate_tx_from_blob(tx_bl, bl.miner_tx);
+        CHECK_AND_ASSERT_MES(r, false, "failed to parse coinbase tx from hard coded blob");
+        bl.major_version = CURRENT_BLOCK_MAJOR_VERSION;
+        bl.minor_version = CURRENT_BLOCK_MINOR_VERSION;
+        bl.timestamp = 1496881488;
+        bl.nonce = config::GENESIS_NONCE;
+        return true;
+      }
+
+      bool generateTestnetGenesisBlock(cryptonote::block& b) {
+        if (!generate_genesis_block(b)) {
+          return false;
+        }
+
+        b.nonce += 1;
+        return true;
+      }
+
   //---------------------------------------------------------------
   bool get_block_longhash(const block& b, crypto::hash& res, uint64_t height)
   {

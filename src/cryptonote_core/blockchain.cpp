@@ -339,6 +339,11 @@ bool Blockchain::init(BlockchainDB* db, const bool testnet, const cryptonote::te
   //       taking testnet into account
   if(!m_db->height())
   {
+
+    if (KICKOFF_TX == 0) {
+      make_new_kickoff_tx();
+      }
+
     MINFO("Blockchain not loaded, generating genesis block.");
     block bl = boost::value_initialized<block>();
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
