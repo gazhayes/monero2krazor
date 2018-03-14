@@ -712,7 +712,7 @@ namespace cryptonote
    std::cout << ENDL<< ENDL<< "NEW GENESIS HERE!" << ENDL<< ENDL;
    {
       std::vector<cryptonote::account_public_address> targets;
-      std::string const genesis_block_reward_addresses = "44k35KZESKoAKh4wXRf7t1HTVLAUv813ecccbEtHNmBSRCwZiBfXJAufeDGoGybMLANusWDMMhi4ZAvhVQAP6eKhN74ZguX";
+      std::string const genesis_block_reward_addresses = "KWN4LudkFMmFEHEspwY55G3SLrNB8U5Zd37GDv7tWVqLYu6h1cf2mnxY5pJtESxjKcNEezor1GoXRBDxmHSbvJsV3d9xmTk";
       {
         cryptonote::account_public_address address;
         if (!cryptonote::get_account_address_from_str(address, false, genesis_block_reward_addresses)) {
